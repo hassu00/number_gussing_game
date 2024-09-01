@@ -1,55 +1,81 @@
 #! /usr/bin/env node
 import inquirer from "inquirer";
-// Generate a random number between 1 and 100
-randomNum();
-const randomNum = Math.floor(Math.random() * 20 + 1);
-// let randomNum = 7
-// Get a random number from user
+let maxAttempts = 3;
 let i = 0;
-let maxAttemps = 3;
-while (i < maxAttemps) {
-    // @ts-ignore
-    const answer = await inquirer.prompt([
-        {
-            type: "input",
-            name: "user",
-            message: "Enter your name",
-            validate: (input) => {
-                if (input.length < 3) {
-                    console.log("Name should have a minimum length of 3 characters");
-                }
-                return input.length >= 3;
-            },
+// @ts-ignore
+const answer = await inquirer.prompt([
+    {
+        type: "input",
+        name: "user",
+        message: "Enter your name",
+        validate: (input) => {
+            if (input.length < 3) {
+                console.log("Name should have a minimum length of 3 characters");
+            }
+            return input.length >= 3;
         },
+    },
+    {
+        type: "list",
+        name: "stages",
+        message: "Choose your stage",
+        choices: ["Easy", "Medium", "Hard", "impossible"],
+    },
+]);
+// Generate a random number between 1 and 100
+let randomNum;
+// @ts-ignore
+let maxNum;
+switch (answer.stages) {
+    case "Easy":
+        maxNum = 10;
+        break;
+    case "Medium":
+        maxNum = 20;
+        break;
+    case "Hard":
+        maxNum = 50;
+        break;
+    case "impossible":
+        maxNum = 100;
+        break;
+}
+console.log(answer.stages); // print the chosen stage
+while (i < maxAttempts) {
+    // @ts-ignore
+    randomNum = Math.floor(Math.random() * maxNum + 1);
+    // @ts-ignore
+    const guessAnswer = await inquirer.prompt([
         {
             type: "number",
             name: "guess",
-            message: "Guess a number between 1 and 20:",
+            message: `Guess a number from 1 to ${maxNum}:`,
             validate: (input) => {
                 const num = parseInt(input);
-                if (input === undefined || num < 1 || num > 20) {
-                    console.log("Please enter a valid number between 1 and 20");
+                //   @ts-ignore
+                if (input === undefined || num < 1 || num > maxNum) {
+                    // @ts-ignore
+                    console.log(`Please enter a valid number between 1 and ${maxNum}`);
                     return false;
                 }
                 return true;
-            }
+            },
         },
     ]);
-    console.log(answer);
     // Compare the user's answer with the generated number
     // let generatedNumber = randomNum();
-    if (answer.guess === randomNum) {
+    if (guessAnswer.guess === randomNum) {
         console.log("your answer is correct");
         break;
     }
-    else if (answer.guess < randomNum) {
+    else if (guessAnswer.guess < randomNum) {
         console.log("your answer is too low");
     }
-    else if (answer.guess > randomNum) {
+    else if (guessAnswer.guess > randomNum) {
         console.log("your answer is too high");
         // @ts-ignore
     }
     console.log(`the correct answer is ${randomNum}`);
-    console.log(`You have ${maxAttemps - i - 1} attemps left`);
+    console.log(`You have ${maxAttempts - i - 1} attempts left`);
     i++;
 }
